@@ -16,25 +16,21 @@ var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a2
 		SensorTag.discoverAll(function(sensorTag) {
 		  console.log('discovered: ' + sensorTag);
 		  
-		  client.getDevice(sensorTag.uuid, function (err, device){
-			  if (err) {  
-				  client.createDevice(new tempoiq.Device(sensorTag.uuid,
-					{
-					    name: "SensorTag-"+sensorTag.uuid,
-					    attributes: {
-					      model: "v1"
-					    },
-					    sensors: [
-					      new tempoiq.Sensor("temperature"),
-					      new tempoiq.Sensor("magnetometer")
-					    ]
-					}), function(err, device) {
-					  if (err) throw err;
-					  console.log("Device created: " + device.key);
-					});
-			  }
-			  console.log("Found Device: " + device.key);
-		  });
+		  client.createDevice(new tempoiq.Device(sensorTag.uuid,
+			{
+			    name: "SensorTag-" + sensorTag.uuid,
+			    attributes: {
+			      model: "v1"
+			    },
+			    sensors: [
+			      new tempoiq.Sensor("temperature"),
+			      new tempoiq.Sensor("magnetometer")
+			    ]
+			}), function(err, device) {
+			  console.log("Device created: " + device.key);
+			});
+		  
+		  
 		  sensorTag.on('disconnect', function() {
 		    console.log('disconnected!');
 		    process.exit(0);
