@@ -17,11 +17,15 @@ function dataLoop() {
 		SensorTag.discover(function(sensorTag) {
 		  console.log('discovered: ' + sensorTag);
 		  
-		  client.createDevice(new tempoiq.Device(sensorTag.uuid), function(err, device) {
-			  if (err) throw err;
-			  console.log("Device created: " + device.key);
-			});
-		  
+		  client.getDevice(sensorTag.uuid, function (err, device){
+			  if (err) {  
+				  client.createDevice(new tempoiq.Device(sensorTag.uuid), function(err, device) {
+					  if (err) throw err;
+					  console.log("Device created: " + device.key);
+					});
+			  }
+			  console.log("Found Device: " + device.key);
+		  });
 		  sensorTag.on('disconnect', function() {
 		    console.log('disconnected!');
 		    process.exit(0);
@@ -108,24 +112,25 @@ function dataLoop() {
     }
 }
 
-function pauseScript(millis)
-{
- var date = new Date();
- var curDate = null;
- do { curDate = new Date(); }
- while(curDate-date < millis);
+function pauseScript(millis) {
+	var date = new Date();
+	var curDate = null;
+	do { curDate = new Date(); }
+	while(curDate-date < millis);
 }
 
 function reportData(uuid, data, type){
 	var device = uuid;
 	var t1 = new Date();
 
-	var data = new tempoiq.BulkWrite();
+	var tempdata = new tempoiq.BulkWrite();
 
-	data.push(device, type,
+	tempdata.push(device, type,
 	          new tempoiq.DataPoint(t1, data));
 
-	client.writeBulk(data, function(err) {
+	client.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
 }
+
+dataLoop();
