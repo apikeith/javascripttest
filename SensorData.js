@@ -12,14 +12,23 @@ var x = 1;
 
 var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a254059a436666f728fbd87", "ttmlco-trial.backend.tempoiq.com");
 
-function dataLoop() {
     while (x==1) {
-		SensorTag.discover(function(sensorTag) {
+		SensorTag.discoverAll(function(sensorTag) {
 		  console.log('discovered: ' + sensorTag);
 		  
 		  client.getDevice(sensorTag.uuid, function (err, device){
 			  if (err) {  
-				  client.createDevice(new tempoiq.Device(sensorTag.uuid), function(err, device) {
+				  client.createDevice(new tempoiq.Device(sensorTag.uuid,
+					{
+					    name: "SensorTag-"+sensorTag.uuid,
+					    attributes: {
+					      model: "v1"
+					    },
+					    sensors: [
+					      new tempoiq.Sensor("temperature"),
+					      new tempoiq.Sensor("magnetometer")
+					    ]
+					}), function(err, device) {
 					  if (err) throw err;
 					  console.log("Device created: " + device.key);
 					});
@@ -54,7 +63,7 @@ function dataLoop() {
 		            	var maxAmb = curAmb + 1;
 		            	var minAmb = curAmb - 1;
 		            	if ((!prevAmb[sensorTag.uuid]) || (prevAmb[sensorTag.uuid] >= maxAmb) || (prevAmb[sensorTag.uuid] <= minAmb)) {
-		            		reportData(sensorTag.uuid, curAmb, "Temperature");
+		            		reportData(sensorTag.uuid, curAmb, "temperature");
 		            		prevAmb[sensorTag.uuid] = curAmb;
 		            	}
 		            	
@@ -86,7 +95,7 @@ function dataLoop() {
 		            	var maxMag = curMag + magThreshold;
 		            	var minMag = curMag - magThreshold;
 		            	if ((!prevMag[sensorTag.uuid]) || (prevMag[sensorTag.uuid] >= maxMag) || (prevMag[sensorTag.uuid] <= minMag)){
-		            		reportData(sensorTag.uuid, curMag, "Magnetometer");
+		            		reportData(sensorTag.uuid, curMag, "magnetometer");
 		            		prevMag[sensorTag.uuid] = curMag;
 		            	}
 		            	
@@ -110,7 +119,7 @@ function dataLoop() {
 		});
 		pauseScript(pollPeriod);
     }
-}
+
 
 function pauseScript(millis) {
 	var date = new Date();
@@ -132,5 +141,3 @@ function reportData(uuid, data, type){
 	    if (err) throw err;
 	});
 }
-
-dataLoop();
