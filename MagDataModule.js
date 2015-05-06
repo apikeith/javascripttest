@@ -1,18 +1,18 @@
 var async = require('async');
 var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
-var x = 1;
+var sTag;
+var tClient;
 
 module.exports = { 
       getMagData: function getMagData(sensorTag, client, pollPeriod, callback){
-   	 
-    	  setInterval(readData(sensorTag, client), pollPeriod);
-	  
-	  
-	}
+    	  sTag = sensorTag;
+    	  tClient = client;
+    	  setInterval(readData, pollPeriod); 
+	  }
 }
 
-function reportData(uuid, data, type, client){
+function reportData(uuid, data, type){
 	var device = uuid;
 	var t1 = new Date();
 
@@ -21,32 +21,32 @@ function reportData(uuid, data, type, client){
 	tempdata.push(device, type,
 	          new tempoiq.DataPoint(t1, Number(data)));
     console.log(JSON.stringify(tempdata.toJSON()));
-	client.writeBulk(tempdata, function(err) {
+	tClient.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
 }
 
 
-function readData(sensorTag, client){
+function readData(){
 	  async.series([
 	  		      function(callback) {
 	  		        console.log('enableMagnetometer');
-	  		        sensorTag.enableMagnetometer(callback);
+	  		        sTag.enableMagnetometer(callback);
 	  		      },
 	  		      function(callback) {
 	  		          console.log('readMagnetometer');
-	  		          sensorTag.readMagnetometer(function(error, x, y, z) {
+	  		          sTag.readMagnetometer(function(error, x, y, z) {
 	  		              //console.log('\tx = %d μT', x.toFixed(1));
 	  		              console.log('\ty = %d μT', y.toFixed(1));
 	  		              var curMag = y.toFixed(1);
-	  		              reportData(sensorTag.uuid, curMag, "magnetometer", client);
+	  		              reportData(sTag.uuid, curMag, "magnetometer");
 	  		            });   
 	  		          
 	  		          callback();          
 	  		      },
 	  		      function(callback) {
 	  		        console.log('disableMagnetometer');
-	  		        sensorTag.disableMagnetometer(callback);
+	  		        sTag.disableMagnetometer(callback);
 	  		      }
 	  		    ]
 	  		  );

@@ -1,17 +1,20 @@
 var async = require('async');
 var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
-var x = 1;
+var sTag;
+var tClient;
 
 module.exports = {
 		
 	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
-		 setInterval(readData(sensorTag, client), pollPeriod);
+		sTag = sensorTag;
+		tClient = client;
+		setInterval(readData, pollPeriod);
 	}
 }
 
 
-function reportData(uuid, data, type, client){
+function reportData(uuid, data, type){
 	var device = uuid;
 	var t1 = new Date();
 
@@ -20,32 +23,32 @@ function reportData(uuid, data, type, client){
 	tempdata.push(device, type,
 	          new tempoiq.DataPoint(t1, Number(data)));
     console.log(JSON.stringify(tempdata.toJSON()));
-	client.writeBulk(tempdata, function(err) {
+	tClient.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
 }
 
 
-function readData(sensorTag, client){
+function readData(){
 	  async.series([
   		      function (callback) {
   		        console.log('enableIrTemperature');
-  		        sensorTag.enableIrTemperature(callback);
+  		        sTag.enableIrTemperature(callback);
   		      },
   		      function readIR(callback) {
   		          console.log('readIrTemperature');
-  		          sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
+  		          sTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
   		      	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
   		      	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
   		      	    var curAmb = ambientTemperature.toFixed(1);
-  		      	    reportData(sensorTag.uuid, curAmb, "temperature", client);
+  		      	    reportData(sensorTag.uuid, curAmb, "temperature");
   		          });
   		          
   		          callback();
   		      },
   		      function (callback) {
   		        console.log('disableIrTemperature');
-  		        sensorTag.disableIrTemperature(callback);
+  		        sTag.disableIrTemperature(callback);
   		      }
   		    ]
   		  );
