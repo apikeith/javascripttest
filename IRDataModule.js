@@ -2,7 +2,10 @@ var async = require('async');
 var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
 
-module.exports = function getIRTemp(sensorTag, client, pollPeriod){
+module.exports = {
+		
+	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
+
 	  async.series([
 	      function (callback) {
 	        console.log('enableIrTemperature');
@@ -31,6 +34,7 @@ module.exports = function getIRTemp(sensorTag, client, pollPeriod){
 	    ]
 	  );
 	}
+}
 
 
 function reportData(uuid, data, type, client){

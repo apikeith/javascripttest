@@ -25,7 +25,9 @@ SensorTag.discoverAll(function(sensorTag) {
 	      new tempoiq.Sensor("magnetometer")
 	    ]
 	}), function(err, device) {
-	  console.log("Device created: " + device.key);
+	  
+
+	  
 	});
   
   
@@ -44,13 +46,12 @@ function executeAsync(sensorTag){
 	        console.log('connectAndSetUp');
 	        sensorTag.connectAndSetUp(callback);
 	      }, function (callback){
-	    	  while (x == 1) {
 		    	async.parallel([
-		    	    MagData.getMagData(sensorTag, client, pollPeriod),
-		    	    IRTemp.getIRTemp(sensorTag, client, pollPeriod),
-		    	    function(callback){ callback(); }
+		    	    MagData.getMagData(sensorTag, client, pollPeriod, callback),
+		    	    IRTemp.getIRTemp(sensorTag, client, pollPeriod, callback)
+		    	    }
 		    	]);
-	    	  }
+	    	  
 	      },
 	      function(callback) {
 	        console.log('disconnect');
