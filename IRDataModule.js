@@ -6,26 +6,7 @@ var x = 1;
 module.exports = {
 		
 	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
-
-		  async.series([
-		      function (callback) {
-		        console.log('enableIrTemperature');
-		        sensorTag.enableIrTemperature(callback);
-		      },
-		      function readIR(callback) {
-		          console.log('readIrTemperature');
-		          readData(sensorTag, client, pollPeriod);
-		          
-		          callback();
-		      },
-		      function (callback) {
-		        console.log('disableIrTemperature');
-		        sensorTag.disableIrTemperature(callback);
-		      }
-		    ]
-		  );
-		
-		
+		 setTimeout(readData(sensorTag, client), pollPeriod);
 	}
 }
 
@@ -45,20 +26,30 @@ function reportData(uuid, data, type, client){
 }
 
 
-function readData(sensorTag, client, pollPeriod){
-    sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
-	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
-	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
-	    var curAmb = ambientTemperature.toFixed(1);
-	    reportData(sensorTag.uuid, curAmb, "temperature", client);
-    }
-    pauseScript(pollPeriod);
-    readData(sensorTag, client, pollPeriod);
-}
-
-function pauseScript(millis){
- var date = new Date();
- var curDate = null;
- do { curDate = new Date(); }
- while(curDate-date < millis);
+function readData(sensorTag, client){
+	  async.series([
+  		      function (callback) {
+  		        console.log('enableIrTemperature');
+  		        sensorTag.enableIrTemperature(callback);
+  		      },
+  		      function readIR(callback) {
+  		          console.log('readIrTemperature');
+  		          sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
+  		      	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
+  		      	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
+  		      	    var curAmb = ambientTemperature.toFixed(1);
+  		      	    reportData(sensorTag.uuid, curAmb, "temperature", client);
+  		          });
+  		          
+  		          callback();
+  		      },
+  		      function (callback) {
+  		        console.log('disableIrTemperature');
+  		        sensorTag.disableIrTemperature(callback);
+  		      }, function(callback){
+	  		    setTimeout(readData(sensorTag, client), pollPeriod);
+	  		    callback();
+  		      }
+  		    ]
+  		  );
 }

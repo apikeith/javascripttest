@@ -6,24 +6,7 @@ var x = 1;
 module.exports = { 
       getMagData: function getMagData(sensorTag, client, pollPeriod, callback){
    	  
-		  async.series([
-		      function(callback) {
-		        console.log('enableMagnetometer');
-		        sensorTag.enableMagnetometer(callback);
-		      },
-		      function(callback) {
-		          console.log('readMagnetometer');
-		          readData(sensorTag, client, pollPeriod);
-		          
-		          callback();          
-		      },
-		      function(callback) {
-		        console.log('disableMagnetometer');
-		        sensorTag.disableMagnetometer(callback);
-		      }
-		    ]
-		  );
-      
+    	  setTimeout(readData(sensorTag, client), pollPeriod);
 	  
 	  
 	}
@@ -44,20 +27,31 @@ function reportData(uuid, data, type, client){
 }
 
 
-function readData(sensorTag, client, pollPeriod){
-    sensorTag.readMagnetometer(function(error, x, y, z) {
-        //console.log('\tx = %d μT', x.toFixed(1));
-        console.log('\ty = %d μT', y.toFixed(1));
-        var curMag = y.toFixed(1);
-        reportData(sensorTag.uuid, curMag, "magnetometer", client);
-      });   
-    pauseScript(pollPeriod);
-    readData(sensorTag, client, pollPeriod);
-}
-
-function pauseScript(millis){
- var date = new Date();
- var curDate = null;
- do { curDate = new Date(); }
- while(curDate-date < millis);
+function readData(sensorTag, client){
+	  async.series([
+	  		      function(callback) {
+	  		        console.log('enableMagnetometer');
+	  		        sensorTag.enableMagnetometer(callback);
+	  		      },
+	  		      function(callback) {
+	  		          console.log('readMagnetometer');
+	  		          sensorTag.readMagnetometer(function(error, x, y, z) {
+	  		              //console.log('\tx = %d μT', x.toFixed(1));
+	  		              console.log('\ty = %d μT', y.toFixed(1));
+	  		              var curMag = y.toFixed(1);
+	  		              reportData(sensorTag.uuid, curMag, "magnetometer", client);
+	  		            });   
+	  		          
+	  		          callback();          
+	  		      },
+	  		      function(callback) {
+	  		        console.log('disableMagnetometer');
+	  		        sensorTag.disableMagnetometer(callback);
+	  		      }, function(callback){
+	  		    	setTimeout(readData(sensorTag, client), pollPeriod);
+	  		    	callback();
+	  		      }
+	  		    ]
+	  		  );
+	  
 }
