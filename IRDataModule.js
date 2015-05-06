@@ -41,7 +41,7 @@ function readData(){
   		      	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
   		      	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
   		      	    var curAmb = ambientTemperature.toFixed(1);
-  		      	    reportData(sensorTag.uuid, curAmb, "temperature");
+  		      	    reportData(sTag.uuid, curAmb, "temperature");
   		          });
   		          
   		          callback();
