@@ -49,14 +49,9 @@ function executeAsync(sensorTag){
 		    	async.parallel([
 		    	    MagData.getMagData(sensorTag, client, pollPeriod, callback),
 		    	    IRTemp.getIRTemp(sensorTag, client, pollPeriod, callback)
-		    	    }
 		    	]);
-	    	  
-	      },
-	      function(callback) {
-	        console.log('disconnect');
-	        sensorTag.disconnect(callback);
-	      }
+	    	  callback();
+	      }  
 	    ]
 	  );
 }

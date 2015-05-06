@@ -5,34 +5,35 @@ var tempoiq = require('tempoiq');
 module.exports = {
 		
 	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
-
-	  async.series([
-	      function (callback) {
-	        console.log('enableIrTemperature');
-	        sensorTag.enableIrTemperature(callback);
-	      },
-	      function readIR(callback) {
+		while (x == 1){	
+		  async.series([
+		      function (callback) {
+		        console.log('enableIrTemperature');
+		        sensorTag.enableIrTemperature(callback);
+		      },
+		      function readIR(callback) {
+		
+		          console.log('readIrTemperature');
+		          sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
+		            //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
+		            console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
+		            var curAmb = ambientTemperature.toFixed(1);
 	
-	          console.log('readIrTemperature');
-	          sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
-	            //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
-	            console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
-	            var curAmb = ambientTemperature.toFixed(1);
-
-	            reportData(sensorTag.uuid, curAmb, "temperature", client);
-	        
-	            callback();
-	          });
-	      },
-	      function (callback) {
-	        console.log('disableIrTemperature');
-	        sensorTag.disableIrTemperature(callback);
-	      },
-	      function(callback) {
-		        setTimeout(callback, pollPeriod);
-		  }
-	    ]
-	  );
+		            reportData(sensorTag.uuid, curAmb, "temperature", client);
+		        
+		            callback();
+		          });
+		      },
+		      function (callback) {
+		        console.log('disableIrTemperature');
+		        sensorTag.disableIrTemperature(callback);
+		      },
+		      function(callback) {
+			    setTimeout(callback, pollPeriod);
+			  }
+		    ]
+		  );
+		}
 	}
 }
 
@@ -44,8 +45,8 @@ function reportData(uuid, data, type, client){
 	var tempdata = new tempoiq.BulkWrite();
 
 	tempdata.push(device, type,
-	          new tempoiq.DataPoint(t1, parseFloat(data).toFixed(1)));
-
+	          new tempoiq.DataPoint(t1, Number(data)));
+    console.log(JSON.stringify(tempdata.toJSON()));
 	client.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
