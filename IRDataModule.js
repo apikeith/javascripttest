@@ -1,13 +1,10 @@
 var async = require('async');
 
-module.exports = function getIRTemp(sensorTag, client){
+module.exports = function getIRTemp(sensorTag, client, pollPeriod){
 	  async.series([
 	      function (callback) {
 	        console.log('enableIrTemperature');
 	        sensorTag.enableIrTemperature(callback);
-	      },
-	      function (callback) {
-	        setTimeout(callback, 2000);
 	      },
 	      function readIR(callback) {
 	
@@ -32,7 +29,10 @@ module.exports = function getIRTemp(sensorTag, client){
 	      function (callback) {
 	        console.log('disableIrTemperature');
 	        sensorTag.disableIrTemperature(callback);
-	      }
+	      },
+	      function(callback) {
+		        setTimeout(callback, pollPeriod);
+		  }
 	    ]
 	  );
 	}

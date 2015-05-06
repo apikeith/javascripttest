@@ -50,8 +50,9 @@ function executeAsync(sensorTag){
 	      }, function (callback){
 	    	  while (x == 1) {
 		    	async.parallel([
-		    	    MagData.getMagData(sensorTag, client),
-		    	    IRTemp.getIRTemp(sensorTag, client)
+		    	    MagData.getMagData(sensorTag, client, pollPeriod),
+		    	    IRTemp.getIRTemp(sensorTag, client, pollPeriod),
+		    	    function(callback){ callback(); }
 		    	]);
 	    	  }
 	      },

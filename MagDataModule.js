@@ -1,13 +1,10 @@
 var async = require('async');
 
-module.exports = function getMagData(sensorTag, client){
+module.exports = function getMagData(sensorTag, client, pollPeriod){
   async.series([
       function(callback) {
         console.log('enableMagnetometer');
         sensorTag.enableMagnetometer(callback);
-      },
-      function(callback) {
-        setTimeout(callback, 2000);
       },
       function(callback) {
           console.log('readMagnetometer');
@@ -33,7 +30,10 @@ module.exports = function getMagData(sensorTag, client){
       function(callback) {
         console.log('disableMagnetometer');
         sensorTag.disableMagnetometer(callback);
-      }
+      },
+      function(callback) {
+	    setTimeout(callback, pollPeriod);
+	  }
     ]
   );
 }
