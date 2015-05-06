@@ -5,8 +5,8 @@ var x = 1;
 
 module.exports = { 
       getMagData: function getMagData(sensorTag, client, pollPeriod, callback){
-   	  
-    	  setTimeout(readData(sensorTag, client), pollPeriod);
+   	 
+    	  setInterval(readData(sensorTag, client), pollPeriod);
 	  
 	  
 	}
@@ -47,9 +47,6 @@ function readData(sensorTag, client){
 	  		      function(callback) {
 	  		        console.log('disableMagnetometer');
 	  		        sensorTag.disableMagnetometer(callback);
-	  		      }, function(callback){
-	  		    	setTimeout(readData(sensorTag, client), pollPeriod);
-	  		    	callback();
 	  		      }
 	  		    ]
 	  		  );

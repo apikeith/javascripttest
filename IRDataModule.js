@@ -6,7 +6,7 @@ var x = 1;
 module.exports = {
 		
 	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
-		 setTimeout(readData(sensorTag, client), pollPeriod);
+		 setInterval(readData(sensorTag, client), pollPeriod);
 	}
 }
 
@@ -46,9 +46,6 @@ function readData(sensorTag, client){
   		      function (callback) {
   		        console.log('disableIrTemperature');
   		        sensorTag.disableIrTemperature(callback);
-  		      }, function(callback){
-	  		    setTimeout(readData(sensorTag, client), pollPeriod);
-	  		    callback();
   		      }
   		    ]
   		  );
