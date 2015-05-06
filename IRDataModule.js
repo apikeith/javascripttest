@@ -1,4 +1,6 @@
 var async = require('async');
+var SensorTag = require('sensortag');
+var tempoiq = require('tempoiq');
 
 module.exports = function getIRTemp(sensorTag, client, pollPeriod){
 	  async.series([
@@ -13,16 +15,9 @@ module.exports = function getIRTemp(sensorTag, client, pollPeriod){
 	            //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
 	            console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
 	            var curAmb = ambientTemperature.toFixed(1);
-	            if (curAmb != prevAmb){
-	            	var maxAmb = curAmb + 1;
-	            	var minAmb = curAmb - 1;
-	            	if ((!prevAmb[sensorTag.uuid]) || (prevAmb[sensorTag.uuid] >= maxAmb) || (prevAmb[sensorTag.uuid] <= minAmb)) {
-	            		reportData(sensorTag.uuid, curAmb, "temperature", client);
-	            		prevAmb[sensorTag.uuid] = curAmb;
-	            	}
-	            	
-	            }
-	            
+
+	            reportData(sensorTag.uuid, curAmb, "temperature", client);
+	        
 	            callback();
 	          });
 	      },

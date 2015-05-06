@@ -1,14 +1,10 @@
-var IRTemp = require('IRDataModule');
-var MagData = require('MagDataModule');
+var IRTemp = require('./IRDataModule');
+var MagData = require('./MagDataModule');
 var util = require('util');
 var async = require('async');
 var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
 var USE_READ = true;
-var prevMag = {};
-var prevAmb = {};
-var magThreshold = 1;
-var ambThreshold = 1;
 var pollPeriod = 500;
 var x = 1;
 
