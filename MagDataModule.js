@@ -5,7 +5,7 @@ var x = 1;
 
 module.exports = { 
       getMagData: function getMagData(sensorTag, client, pollPeriod, callback){
-      while (x == 1){	  
+   	  
 		  async.series([
 		      function(callback) {
 		        console.log('enableMagnetometer');
@@ -13,28 +13,18 @@ module.exports = {
 		      },
 		      function(callback) {
 		          console.log('readMagnetometer');
-		          
-		          sensorTag.readMagnetometer(function(error, x, y, z) {
-		        	  
-		            //console.log('\tx = %d μT', x.toFixed(1));
-		            console.log('\ty = %d μT', y.toFixed(1));
-		            var curMag = y.toFixed(1);
-		            reportData(sensorTag.uuid, curMag, "magnetometer", client);
-		            callback();
-		          });   
-		          
-		          
+		          while (x == 1){
+		        	  setTimeout(readData(sensorTag, client), pollPeriod);
+		          }
+		          callback();          
 		      },
 		      function(callback) {
 		        console.log('disableMagnetometer');
 		        sensorTag.disableMagnetometer(callback);
-		      },
-		      function(callback) {
-			    setTimeout(callback, pollPeriod);
-			  }
+		      }
 		    ]
 		  );
-      }
+      
 	  
 	  
 	}
@@ -52,4 +42,15 @@ function reportData(uuid, data, type, client){
 	client.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
+}
+
+
+function readData(sensorTag, client){
+    sensorTag.readMagnetometer(function(error, x, y, z) {
+        //console.log('\tx = %d μT', x.toFixed(1));
+        console.log('\ty = %d μT', y.toFixed(1));
+        var curMag = y.toFixed(1);
+        reportData(sensorTag.uuid, curMag, "magnetometer", client);
+      });   
+	
 }

@@ -5,35 +5,27 @@ var tempoiq = require('tempoiq');
 module.exports = {
 		
 	getIRTemp: function getIRTemp(sensorTag, client, pollPeriod, callback){
-		while (x == 1){	
+
 		  async.series([
 		      function (callback) {
 		        console.log('enableIrTemperature');
 		        sensorTag.enableIrTemperature(callback);
 		      },
 		      function readIR(callback) {
-		
 		          console.log('readIrTemperature');
-		          sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
-		            //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
-		            console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
-		            var curAmb = ambientTemperature.toFixed(1);
-	
-		            reportData(sensorTag.uuid, curAmb, "temperature", client);
-		        
-		            callback();
-		          });
+		          while (x == 1){
+		        	  setTimeout(readData(sensorTag, client), pollPeriod);
+		          }
+		          callback();
 		      },
 		      function (callback) {
 		        console.log('disableIrTemperature');
 		        sensorTag.disableIrTemperature(callback);
-		      },
-		      function(callback) {
-			    setTimeout(callback, pollPeriod);
-			  }
+		      }
 		    ]
 		  );
-		}
+		
+		
 	}
 }
 
@@ -50,4 +42,14 @@ function reportData(uuid, data, type, client){
 	client.writeBulk(tempdata, function(err) {
 	    if (err) throw err;
 	});
+}
+
+
+function readData(sensorTag, client){
+    sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
+	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
+	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
+	    var curAmb = ambientTemperature.toFixed(1);
+	    reportData(sensorTag.uuid, curAmb, "temperature", client);
+    }
 }
