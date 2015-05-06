@@ -12,24 +12,15 @@ var x = 1;
 
 var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a254059a436666f728fbd87", "ttmlco-trial.backend.tempoiq.com");
 
+function dataLoop() {
     while (x==1) {
-		SensorTag.discoverAll(function(sensorTag) {
+		SensorTag.discover(function(sensorTag) {
 		  console.log('discovered: ' + sensorTag);
 		  
-		  client.createDevice(new tempoiq.Device(sensorTag.uuid,
-			{
-			    name: "SensorTag-" + sensorTag.uuid,
-			    attributes: {
-			      model: "v1"
-			    },
-			    sensors: [
-			      new tempoiq.Sensor("temperature"),
-			      new tempoiq.Sensor("magnetometer")
-			    ]
-			}), function(err, device) {
+		  client.createDevice(new tempoiq.Device(sensorTag.uuid), function(err, device) {
+			  if (err) throw err;
 			  console.log("Device created: " + device.key);
 			});
-		  
 		  
 		  sensorTag.on('disconnect', function() {
 		    console.log('disconnected!');
@@ -59,7 +50,7 @@ var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a2
 		            	var maxAmb = curAmb + 1;
 		            	var minAmb = curAmb - 1;
 		            	if ((!prevAmb[sensorTag.uuid]) || (prevAmb[sensorTag.uuid] >= maxAmb) || (prevAmb[sensorTag.uuid] <= minAmb)) {
-		            		reportData(sensorTag.uuid, curAmb, "temperature");
+		            		reportData(sensorTag.uuid, curAmb, "Temperature");
 		            		prevAmb[sensorTag.uuid] = curAmb;
 		            	}
 		            	
@@ -91,7 +82,7 @@ var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a2
 		            	var maxMag = curMag + magThreshold;
 		            	var minMag = curMag - magThreshold;
 		            	if ((!prevMag[sensorTag.uuid]) || (prevMag[sensorTag.uuid] >= maxMag) || (prevMag[sensorTag.uuid] <= minMag)){
-		            		reportData(sensorTag.uuid, curMag, "magnetometer");
+		            		reportData(sensorTag.uuid, curMag, "Magnetometer");
 		            		prevMag[sensorTag.uuid] = curMag;
 		            	}
 		            	
@@ -115,25 +106,26 @@ var client = new tempoiq.Client("87d96890010d47f8ae37d089c8d26e43", "838dba057a2
 		});
 		pauseScript(pollPeriod);
     }
+}
 
-
-function pauseScript(millis) {
-	var date = new Date();
-	var curDate = null;
-	do { curDate = new Date(); }
-	while(curDate-date < millis);
+function pauseScript(millis)
+{
+ var date = new Date();
+ var curDate = null;
+ do { curDate = new Date(); }
+ while(curDate-date < millis);
 }
 
 function reportData(uuid, data, type){
 	var device = uuid;
 	var t1 = new Date();
 
-	var tempdata = new tempoiq.BulkWrite();
+	var data = new tempoiq.BulkWrite();
 
-	tempdata.push(device, type,
+	data.push(device, type,
 	          new tempoiq.DataPoint(t1, data));
 
-	client.writeBulk(tempdata, function(err) {
+	client.writeBulk(data, function(err) {
 	    if (err) throw err;
 	});
 }
