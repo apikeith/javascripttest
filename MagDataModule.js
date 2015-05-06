@@ -13,9 +13,8 @@ module.exports = {
 		      },
 		      function(callback) {
 		          console.log('readMagnetometer');
-		          while (x == 1){
-		        	  setTimeout(readData(sensorTag, client), pollPeriod);
-		          }
+		          readData(sensorTag, client, pollPeriod);
+		          
 		          callback();          
 		      },
 		      function(callback) {
@@ -45,12 +44,20 @@ function reportData(uuid, data, type, client){
 }
 
 
-function readData(sensorTag, client){
+function readData(sensorTag, client, pollPeriod){
     sensorTag.readMagnetometer(function(error, x, y, z) {
         //console.log('\tx = %d μT', x.toFixed(1));
         console.log('\ty = %d μT', y.toFixed(1));
         var curMag = y.toFixed(1);
         reportData(sensorTag.uuid, curMag, "magnetometer", client);
       });   
-	
+    pauseScript(pollPeriod);
+    readData(sensorTag, client, pollPeriod);
+}
+
+function pauseScript(millis){
+ var date = new Date();
+ var curDate = null;
+ do { curDate = new Date(); }
+ while(curDate-date < millis);
 }

@@ -1,6 +1,7 @@
 var async = require('async');
 var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
+var x = 1;
 
 module.exports = {
 		
@@ -13,9 +14,8 @@ module.exports = {
 		      },
 		      function readIR(callback) {
 		          console.log('readIrTemperature');
-		          while (x == 1){
-		        	  setTimeout(readData(sensorTag, client), pollPeriod);
-		          }
+		          readData(sensorTag, client, pollPeriod);
+		          
 		          callback();
 		      },
 		      function (callback) {
@@ -45,11 +45,20 @@ function reportData(uuid, data, type, client){
 }
 
 
-function readData(sensorTag, client){
+function readData(sensorTag, client, pollPeriod){
     sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
 	    //console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
 	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
 	    var curAmb = ambientTemperature.toFixed(1);
 	    reportData(sensorTag.uuid, curAmb, "temperature", client);
     }
+    pauseScript(pollPeriod);
+    readData(sensorTag, client, pollPeriod);
+}
+
+function pauseScript(millis){
+ var date = new Date();
+ var curDate = null;
+ do { curDate = new Date(); }
+ while(curDate-date < millis);
 }
