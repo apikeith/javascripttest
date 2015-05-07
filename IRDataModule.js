@@ -3,6 +3,7 @@ var SensorTag = require('sensortag');
 var tempoiq = require('tempoiq');
 var sTag;
 var tClient;
+var config = true;
 
 module.exports = {
 		
@@ -34,7 +35,10 @@ function readData(){
   		      function (callback) {
   		        console.log('enableIrTemperature');
   		        sTag.enableIrTemperature(callback);
-  		      },
+  		      }, 
+  		      function(callback) {
+		        setTimeout(callback, 1000);
+		      },
   		      function readIR(callback) {
   		          console.log('readIrTemperature');
   		          sTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
@@ -42,6 +46,10 @@ function readData(){
   		      	    console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
   		      	    var curAmb = ambientTemperature.toFixed(1);
   		      	    reportData(sTag.uuid, curAmb, "temperature");
+  	                if (config){
+		            	reportData("config-" + sTag.uuid, curMag, "temperature");
+		            	config = false;
+		            }
   		          });
   		          
   		          callback();
